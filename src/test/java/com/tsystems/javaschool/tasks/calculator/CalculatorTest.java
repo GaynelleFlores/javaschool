@@ -5,220 +5,266 @@ import org.junit.Test;
 
 public class CalculatorTest {
 
+    private Calculator calc = new Calculator();
 
-    private boolean checkBrackets(String str) {
-        int num1 = 0;
-        int num2 = 0;
-        for (int i = 0; i < str.length(); i++) {
-            if (str.charAt(i) == '(') {
-                num1++;
-            } else if (str.charAt(i) == ')') {
-                num2++;
-            }
-        }
-        return num1 == num2;
-    }
-    private boolean checkString(String str) {
-        if (str.equals("") || str.matches("(.*)[a-zA-Z]+(.*)")
-                || str.matches("(.*)[*+-/]{2}(.*)")
-        ) //todo адеквтаная проверка
-            return false;
-        return checkBrackets(str);
-    }
-    private int findBeginOfNumber(String currBrackets, int mathSymbol) {
-        int begin = mathSymbol - 1;
-        while (begin >= 0 && (Character.isDigit(currBrackets.charAt(begin)) || currBrackets.charAt(begin) == '.' || currBrackets.charAt(begin) == '-')) {
-            begin--;
-        }
-        begin++;
-        System.out.println("BEGIN OF NUMBER " + begin);
-        return begin;
-    }
-    private int findEndOfNumber(String currBrackets, int mathSymbol) {
-        int end = mathSymbol + 1;
+    @Test
+    public void evaluate() {
+        //given
+        String input = "2+3";
+        String expectedResult = "5";
 
-        while (end < currBrackets.length() && (Character.isDigit(currBrackets.charAt(end)) || currBrackets.charAt(end) == '.')) {
-            end++;
-        }
-        return end;
-    }
-    private Float findNumberAfter(String currBrackets, int mathSymbol) {
-        float res = 0;
-        int end = findEndOfNumber(currBrackets, mathSymbol);
-        try {
-            res = Float.parseFloat(currBrackets.substring(mathSymbol + 1, end));
-        } catch (Exception e) {
-            //e.printStackTrace(); //todo delete me
-            return null;
-        }
-        return res;
-    }
-    private Float findNumberBefore(String currBrackets, int mathSymbol) {
-        float res = 0;
+        //run
+        String result = calc.evaluate(input);
 
-        int begin = findBeginOfNumber(currBrackets, mathSymbol);
-
-        try {
-            res = Float.parseFloat(currBrackets.substring(begin, mathSymbol));
-        } catch (Exception e) {
-            e.printStackTrace(); //todo delete me
-            return null;
-        }
-        return res;
-    }
-    private String replaceSubstring(String str, String substr, int begin, int end) {
-        String remove = str.substring(begin, end);
-        str = str.replace(remove, substr);
-        return str;
-    }
-    private String multiplyOrDivide (String currBrackets) {
-        Float num1;
-        Float num2;
-        Float res;
-        int mathSymbol; //todo delete me
-
-        if (currBrackets.indexOf("*") > currBrackets.indexOf("/")) {
-            mathSymbol = currBrackets.indexOf("*");
-        } else {
-            mathSymbol = currBrackets.indexOf("/");
-        }
-        num1 = findNumberBefore(currBrackets, mathSymbol);
-        num2 = findNumberAfter(currBrackets, mathSymbol);
-        System.out.println("num1 " + num1 + " num2 = " + num2);
-        if (num1 == null || num2 == null)
-            return null;
-        if (currBrackets.charAt(mathSymbol) == '*') {
-            res = num1 * num2;
-        } else {
-            res = num1 / num2;
-        }
-        currBrackets = replaceSubstring(currBrackets, res.toString(), findBeginOfNumber(currBrackets, mathSymbol), findEndOfNumber(currBrackets, mathSymbol));
-        System.out.println("curr br " + currBrackets); //todo мне это вообще надо?
-        return currBrackets;
+        //assert
+        Assert.assertEquals(expectedResult, result);
     }
 
-    private String calculate(String currBrackets) {
-        int num1;
-        int num2;
-        int index;
+    @Test
+    public void evaluate1() {
+        //given
+        String input = "4-6";
+        String expectedResult = "-2";
 
-        while(currBrackets.contains("*") || currBrackets.contains("/")) {
-            currBrackets = multiplyOrDivide(currBrackets);
-            System.out.println("calculation result DIV" + currBrackets);
-            if (currBrackets == null) {
-                return null;
-            }
-        }
-        while(!isResult(currBrackets)) {
-            currBrackets = addOrSubstract(currBrackets);
-            System.out.println("calculation result PLUS" + currBrackets);
-            if (currBrackets == null) {
-                return null;
-            }
-        }
+        //run
+        String result = calc.evaluate(input);
 
-        return currBrackets;
+        //assert
+        Assert.assertEquals(expectedResult, result);
     }
 
-    private String addOrSubstract(String currBrackets) {
-        Float num1;
-        Float num2;
-        Float res;
-        int mathSymbol; //todo delete me
+    @Test
+    public void evaluate2() {
+        //given
+        String input = "2*3";
+        String expectedResult = "6";
 
-        if (currBrackets.indexOf("-", 1) > currBrackets.indexOf("+")) {
-            mathSymbol = currBrackets.indexOf("-", 1);
-        } else {
-            mathSymbol = currBrackets.indexOf("+");
-        }
-        num1 = findNumberBefore(currBrackets, mathSymbol);
-        num2 = findNumberAfter(currBrackets, mathSymbol);
-        System.out.println("num1 " + num1 + " num2 = " + num2);
-        if (num1 == null || num2 == null)
-            return null;
-        if (currBrackets.charAt(mathSymbol) == '+') {
-            res = num1 + num2;
-        } else {
-            res = num1 - num2;
-        }
-        currBrackets = replaceSubstring(currBrackets, res.toString(), findBeginOfNumber(currBrackets, mathSymbol), findEndOfNumber(currBrackets, mathSymbol));
-        System.out.println("curr br " + currBrackets); //todo мне это вообще надо?
-        return currBrackets;
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
     }
 
-    private boolean isResult(String str) {
-        System.out.println("Is result " + str + " " + str.matches("-?[\\d]+\\.?[\\d]*"));
-        return str.matches("-?[\\d]+\\.?[\\d]*");
-    }
-    private String findBrackets(String currBrackets){ //1 - нашли скобки и все записали 0 нет скобок -1 ошибка со скобками
-        System.out.println("i am in findBrackets " + currBrackets);
-        if (!currBrackets.contains("(")) {
-            if (!currBrackets.contains(")")) {
-                System.out.println("calculate " + currBrackets);
-                currBrackets = calculate(currBrackets);
-                System.out.println("after calculate " + currBrackets);
-                return currBrackets;
-            }
-            return null;
-        }
-        //если есть пара скобок
-        String sub;
-        if (currBrackets.contains(")")) { //maybe лишняя проверка? ведь мы проверяли это на входе
-            int index1 = currBrackets.lastIndexOf("(");
-            int index2 = currBrackets.indexOf(")");
-            System.out.println("index1 = " + index1 + " ind2 = " + index2);
-            if ((index2 - index1) <= 1) {
-                System.out.println("here 3");
-                return null;
-            }
-            System.out.println("before " + currBrackets);
-            sub = currBrackets.substring(index1 + 1, index2);
-            System.out.println("after sub " + sub);
-            String res = "str";
-            while(!isResult(currBrackets)) {
-                res = findBrackets(sub);
-                if (res == null) {
-                    return null;
-                }
-                if (isResult(res)) {
-                    currBrackets = currBrackets.replace("(" + sub + ")", res);
-                    break;
-                }
-            }
-            return currBrackets;
-        }
-        System.out.println("before " + currBrackets);
-        return "wh"; //todo что вернуть?
+    @Test
+    public void evaluate3() {
+        //given
+        String input = "12/3";
+        String expectedResult = "4";
 
-    }
-    private String removeZero(String statement) {
-        if (statement.contains(".0")) {
-            statement = statement.replace(".0", "");
-        }
-        return statement;
-    }
-    public String evaluate(String statement) {
-        if (statement == null)
-            return null;
-        statement = removeSpaces(statement);
-        if (!checkString(statement)) {
-            System.out.println("Incorrect str, please, delete me!");
-            return null;
-        }
-        while (!isResult(statement)) {
-            statement = findBrackets(statement);
-            if (statement == null)
-                return  null;
-        }
-        statement = removeZero(statement);
-        System.out.println("final " + statement);
-        return "?";
-        //return statement;
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
     }
 
-    private String removeSpaces(String str) {
-        str = str.replaceAll("\\s+", "");
-        return str;
+    @Test
+    public void evaluate4() {
+        //given
+        String input = "2+3*4";
+        String expectedResult = "14";
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate5() {
+        //given
+        String input = "10/2-7+3*4";
+        String expectedResult = "10";
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate6() {
+        //given
+        String input = "10/(2-7+3)*4";
+        String expectedResult = "-20";
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate7() {
+        //given
+        String input = "22/3*3.0480";
+        String expectedResult = "22.352";
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate8() {
+        //given
+        String input = "22/4*2.159";
+        String expectedResult = "11.8745";
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate9() {
+        //given
+        String input = "22/4*2,159";
+        String expectedResult = null;
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate10() {
+        //given
+        String input = "- 12)1//(";
+        String expectedResult = null;
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate11() {
+        //given
+        String input = "10/(5-5)";
+        String expectedResult = null;
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate12() {
+        //given
+        String input = null;
+        String expectedResult = null;
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate13() {
+        //given
+        String input = "(12*(5-1)";
+        String expectedResult = null;
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate14() {
+        //given
+        String input = "";
+        String expectedResult = null;
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate15() {
+        //given
+        String input = "5+41..1-6";
+        String expectedResult = null;
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate16() {
+        //given
+        String input = "5++41-6";
+        String expectedResult = null;
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate17() {
+        //given
+        String input = "5--41-6";
+        String expectedResult = null;
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate18() {
+        //given
+        String input = "5**41-6";
+        String expectedResult = null;
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void evaluate19() {
+        //given
+        String input = "5//41-6";
+        String expectedResult = null;
+
+        //run
+        String result = calc.evaluate(input);
+
+        //assert
+        Assert.assertEquals(expectedResult, result);
     }
 
 }
