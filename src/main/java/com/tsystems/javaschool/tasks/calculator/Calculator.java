@@ -22,7 +22,6 @@ public class Calculator {
     }
     private int findBeginOfNumber(String currBrackets, int mathSymbol) {
         int begin = mathSymbol - 1;
-
         if (begin < 0) {
             return -1;
         }
@@ -34,7 +33,6 @@ public class Calculator {
             begin--;
         }
         begin++;
-       // System.out.println("BEGIN OF NUMBER " + begin);
         return begin;
     }
     private int findEndOfNumber(String currBrackets, int mathSymbol) {
@@ -51,7 +49,7 @@ public class Calculator {
         return end;
     }
     private Float findNumberAfter(String currBrackets, int mathSymbol) {
-        float res = 0;
+        float res;
         int end = findEndOfNumber(currBrackets, mathSymbol);
         try {
             res = Float.parseFloat(currBrackets.substring(mathSymbol + 1, end));
@@ -64,20 +62,15 @@ public class Calculator {
         float res = 0;
 
         int begin = findBeginOfNumber(currBrackets, mathSymbol);
-
         try {
             res = Float.parseFloat(currBrackets.substring(begin, mathSymbol));
         } catch (Exception e) {
-            //e.printStackTrace();
             return null;
         }
         return res;
     }
     private String replaceSubstring(String str, String substr, int begin, int end) {
-        //System.out.println("str " + str);
         String remove = str.substring(begin, end);
-        //System.out.println("sub " + substr);
-        //System.out.println("char at begin " + str.charAt(begin ));
         if (begin != 0 && Character.isDigit(str.charAt(begin -1)) && Character.isDigit(substr.charAt(0))) {
             str = str.replace(remove, "+" + substr);
             return str;
@@ -96,22 +89,15 @@ public class Calculator {
             return ch1;
         return ch2;
     }
-
     private String multiplyOrDivide (String currBrackets) {
         Float num1;
         Float num2;
-        Float res;
+        float res;
         int mathSymbol;
 
         mathSymbol = currBrackets.indexOf(chooseMathSymbol(currBrackets, '*', '/'));
-//		if (currBrackets.indexOf("*") > currBrackets.indexOf("/")) {
-//			mathSymbol = currBrackets.indexOf('*');
-//		} else {
-//			mathSymbol = currBrackets.indexOf("/");
-//		}
         num1 = findNumberBefore(currBrackets, mathSymbol);
         num2 = findNumberAfter(currBrackets, mathSymbol);
-       // System.out.println("num1 " + num1 + " num2 = " + num2);
         if (num1 == null || num2 == null)
             return null;
         if (currBrackets.charAt(mathSymbol) == '*') {
@@ -122,33 +108,24 @@ public class Calculator {
             }
             res = num1 / num2;
         }
-        currBrackets = replaceSubstring(currBrackets, res.toString(), findBeginOfNumber(currBrackets, mathSymbol), findEndOfNumber(currBrackets, mathSymbol));
+        currBrackets = replaceSubstring(currBrackets, Float.toString(res), findBeginOfNumber(currBrackets, mathSymbol), findEndOfNumber(currBrackets, mathSymbol));
         return currBrackets;
     }
-
     private String calculate(String currBrackets) {
-        int num1;
-        int num2;
-        int index;
-
         while(currBrackets.contains("*") || currBrackets.contains("/")) {
             currBrackets = multiplyOrDivide(currBrackets);
-          //  System.out.println("calculation result DIV" + currBrackets);
             if (currBrackets == null) {
                 return null;
             }
         }
         while(!isResult(currBrackets)) {
             currBrackets = addOrSubstract(currBrackets);
-          //  System.out.println("calculation result PLUS" + currBrackets);
             if (currBrackets == null) {
                 return null;
             }
         }
-
         return currBrackets;
     }
-
     private String addOrSubstract(String currBrackets) {
         Float num1;
         Float num2;
@@ -162,16 +139,8 @@ public class Calculator {
         }else {
             mathSymbol = currBrackets.indexOf("-", 1);
         }
-//		if (currBrackets.indexOf("-", 1) > currBrackets.indexOf("+")) {
-//			System.out.println("I choose substr!");
-//			mathSymbol = currBrackets.indexOf("-", 1);
-//		} else {
-//			System.out.println("I choose add!");
-//			mathSymbol = currBrackets.indexOf("+");
-//		}
         num1 = findNumberBefore(currBrackets, mathSymbol);
         num2 = findNumberAfter(currBrackets, mathSymbol);
-       // System.out.println("num1 " + num1 + " num2 = " + num2);
         if (num1 == null || num2 == null)
             return null;
         if (currBrackets.charAt(mathSymbol) == '+') {
@@ -180,38 +149,27 @@ public class Calculator {
             res = num1 - num2;
         }
         currBrackets = replaceSubstring(currBrackets, res.toString(), findBeginOfNumber(currBrackets, mathSymbol), findEndOfNumber(currBrackets, mathSymbol));
-     //   System.out.println("curr br " + currBrackets);
         return currBrackets;
     }
 
     private boolean isResult(String str) {
-      //  System.out.println("Is result " + str + " " + str.matches("-?[\\d]+\\.?[\\d]*"));
         return str.matches("-?[\\d]+\\.?[\\d]*");
     }
-    private String findBrackets(String currBrackets){ //1 - нашли скобки и все записали 0 нет скобок -1 ошибка со скобками
-      //  System.out.println("i am in findBrackets " + currBrackets);
+    private String findBrackets(String currBrackets){
         if (!currBrackets.contains("(")) {
             if (!currBrackets.contains(")")) {
-              //  System.out.println("calculate " + currBrackets);
                 currBrackets = calculate(currBrackets);
-              //  System.out.println("after calculate " + currBrackets);
                 return currBrackets;
             }
             return null;
         }
-        //если есть пара скобок
         String sub;
-        if (currBrackets.contains(")")) { //maybe лишняя проверка? ведь мы проверяли это на входе
+        if (currBrackets.contains(")")) {
             int index1 = currBrackets.lastIndexOf("(");
             int index2 = currBrackets.indexOf(")");
-            //System.out.println("index1 = " + index1 + " ind2 = " + index2);
-            if ((index2 - index1) <= 1) {
-                //System.out.println("here 3");
+            if ((index2 - index1) <= 1)
                 return null;
-            }
-            //System.out.println("before " + currBrackets);
             sub = currBrackets.substring(index1 + 1, index2);
-            //System.out.println("after sub " + sub);
             String res = "str";
             while(!isResult(currBrackets)) {
                 res = findBrackets(sub);
@@ -225,17 +183,12 @@ public class Calculator {
             }
             return currBrackets;
         }
-        //System.out.println("before " + currBrackets);
         return null;
-
     }
     private String removeZero(String statement) {
         if (statement.contains(".0")) {
             statement = statement.replace(".0", "");
         }
-//		while(statement.matches(".*\\..*0")) {
-//			statement = statement.substring(0, statement.length() - 1);
-//		} todo do it!!!!!!!
         return statement;
     }
     private static float round(float number, int scale) {
@@ -250,7 +203,6 @@ public class Calculator {
             return null;
         statement = removeSpaces(statement);
         if (!checkString(statement)) {
-            //System.out.println("Incorrect str, please, delete me!");
             return null;
         }
         while (!isResult(statement)) {
@@ -261,10 +213,8 @@ public class Calculator {
 
         float res = Float.parseFloat(statement); //todo перенести переменную в начало
         res = round(res, 4);
-       // System.out.println(res);
         statement = Float.toString(res);
         statement = removeZero(statement);
-        //System.out.println("final " + statement);
         return statement;
     }
 
@@ -272,5 +222,4 @@ public class Calculator {
         str = str.replaceAll("\\s+", "");
         return str;
     }
-
 }
