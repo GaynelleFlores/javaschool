@@ -5,6 +5,17 @@ import java.util.List;
 import java.util.ListIterator;
 
 public class PyramidBuilder {
+    public int[][] buildPyramid(List<Integer> inputNumbers) {
+        int [][] res;
+        int len;
+        checkInputList(inputNumbers);
+        int levelsNum = countLevelsNum(inputNumbers);
+        Collections.sort(inputNumbers);
+        len = levelsNum * 2 - 1;
+        res = new int[levelsNum][len];
+        fillPyramid(levelsNum, len, inputNumbers, res);
+        return res;
+    }
     private int countLevelsNum(List<Integer> inputNumbers) throws CannotBuildPyramidException {
         int i = 1;
         int size;
@@ -40,17 +51,6 @@ public class PyramidBuilder {
                 i = 0;
             numsOnString = j + 1;
         }
-    }
-    public int[][] buildPyramid(List<Integer> inputNumbers) {
-        int [][] res;
-        int len;
-        checkInputList(inputNumbers);
-        int levelsNum = countLevelsNum(inputNumbers);
-        Collections.sort(inputNumbers);
-        len = levelsNum * 2 - 1;
-        res = new int[levelsNum][len];
-        fillPyramid(levelsNum, len, inputNumbers, res);
-        return res;
     }
     private void checkInputList(List<Integer> inputNumbers) {
         if (inputNumbers == null || inputNumbers.isEmpty())

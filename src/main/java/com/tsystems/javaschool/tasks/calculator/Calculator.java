@@ -1,6 +1,25 @@
 package com.tsystems.javaschool.tasks.calculator;
 
 public class Calculator {
+    public String evaluate(String statement) {
+        float res;
+        if (statement == null)
+            return null;
+        statement = removeSpaces(statement);
+        if (!checkString(statement)) {
+            return null;
+        }
+        while (!isResult(statement)) {
+            statement = findBrackets(statement);
+            if (statement == null)
+                return  null;
+        }
+        res = Float.parseFloat(statement);
+        res = round(res, 4);
+        statement = Float.toString(res);
+        statement = removeZero(statement);
+        return statement;
+    }
     private boolean checkBrackets(String str) {
         int num1 = 0;
         int num2 = 0;
@@ -59,7 +78,7 @@ public class Calculator {
         return res;
     }
     private Float findNumberBefore(String currBrackets, int mathSymbol) {
-        float res = 0;
+        float res;
 
         int begin = findBeginOfNumber(currBrackets, mathSymbol);
         try {
@@ -119,14 +138,14 @@ public class Calculator {
             }
         }
         while(!isResult(currBrackets)) {
-            currBrackets = addOrSubstract(currBrackets);
+            currBrackets = addOrSubtract(currBrackets);
             if (currBrackets == null) {
                 return null;
             }
         }
         return currBrackets;
     }
-    private String addOrSubstract(String currBrackets) {
+    private String addOrSubtract(String currBrackets) {
         Float num1;
         Float num2;
         Float res;
@@ -170,7 +189,7 @@ public class Calculator {
             if ((index2 - index1) <= 1)
                 return null;
             sub = currBrackets.substring(index1 + 1, index2);
-            String res = "str";
+            String res;
             while(!isResult(currBrackets)) {
                 res = findBrackets(sub);
                 if (res == null) {
@@ -198,26 +217,6 @@ public class Calculator {
         float tmp = number * pow;
         return (float) (int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp) / pow;
     }
-    public String evaluate(String statement) {
-        if (statement == null)
-            return null;
-        statement = removeSpaces(statement);
-        if (!checkString(statement)) {
-            return null;
-        }
-        while (!isResult(statement)) {
-            statement = findBrackets(statement);
-            if (statement == null)
-                return  null;
-        }
-
-        float res = Float.parseFloat(statement); //todo перенести переменную в начало
-        res = round(res, 4);
-        statement = Float.toString(res);
-        statement = removeZero(statement);
-        return statement;
-    }
-
     private String removeSpaces(String str) {
         str = str.replaceAll("\\s+", "");
         return str;
